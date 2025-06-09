@@ -15,7 +15,7 @@ public class LexemeParser extends TextHandler {
 
         String converted = ConverterManager.tryConvert(data);
         for (char c : converted.toCharArray()) {
-            lexeme.add(new LeafTextElement(c, ComponentType.SYMBOL));
+            lexeme.add(new LeafTextElement(c));
         }
 
         return lexeme;

@@ -1,6 +1,5 @@
 package lt.esde.compositechain.component.impl;
 
-import lt.esde.compositechain.component.ComponentType;
 import lt.esde.compositechain.component.TextElement;
 
 import java.util.Collections;
@@ -8,11 +7,9 @@ import java.util.List;
 
 public class LeafTextElement implements TextElement {
     private final char symbol;
-    private final ComponentType type;
 
-    public LeafTextElement(char symbol, ComponentType type) {
+    public LeafTextElement(char symbol) {
         this.symbol = symbol;
-        this.type = type;
     }
 
     @Override
