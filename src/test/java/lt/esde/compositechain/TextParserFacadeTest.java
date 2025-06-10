@@ -1,3 +1,5 @@
+package lt.esde.compositechain;
+
 import lt.esde.compositechain.component.TextElement;
 import lt.esde.compositechain.parser.TextParserFacade;
 import lt.esde.compositechain.service.TextElementService;
