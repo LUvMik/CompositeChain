@@ -1,2 +1,0 @@
-This is a simple test 5*(2+1).
-Another line with bitwise 3<<2!
