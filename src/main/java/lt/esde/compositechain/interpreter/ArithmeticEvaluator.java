@@ -1,42 +1,71 @@
 package lt.esde.compositechain.interpreter;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
 import java.util.StringTokenizer;
 
+/**
+ * Simple arithmetic expression evaluator that converts infix notation to
+ * Reverse-Polish Notation (RPN) by the shunting-yard algorithm and then
+ * evaluates the RPN.
+ */
 public class ArithmeticEvaluator {
+
+    /* --------------------- String constants --------------------- */
+    private static final String TOKEN_DELIMITERS = "+-*/() ";
+    private static final String NUMBER_REGEX     = "\\d+(\\.\\d+)?";
+    private static final String OPERATORS        = "+-*/";
+
+    private static final String PLUS      = "+";
+    private static final String MINUS     = "-";
+    private static final String MULTIPLY  = "*";
+    private static final String DIVIDE    = "/";
+
+    private static final String LEFT_PAREN  = "(";
+    private static final String RIGHT_PAREN = ")";
+    private static final String ZERO        = "0";
+    private static final String EMPTY       = "";
+    /* ------------------------------------------------------------ */
 
     public static double evaluate(String expression) {
         List<String> rpn = toRPN(expression);
         return evalRPN(rpn);
     }
 
+    /**
+     * Converts an infix arithmetic expression to Reverse Polish Notation (RPN)
+     * using Dijkstra's shunting-yard algorithm.
+     */
     private static List<String> toRPN(String expr) {
-        Stack<String> ops = new Stack<>();
+        Deque<String> ops = new ArrayDeque<>();
         List<String> out = new ArrayList<>();
-        StringTokenizer tokenizer = new StringTokenizer(expr, "+-*/() ", true);
+        StringTokenizer tokenizer = new StringTokenizer(expr, TOKEN_DELIMITERS, true);
 
-        String prevToken = "";
+        String prevToken = EMPTY;
         while (tokenizer.hasMoreTokens()) {
             String token = tokenizer.nextToken().trim();
             if (token.isEmpty()) continue;
 
-            if (token.matches("\\d+(\\.\\d+)?")) {
+            if (token.matches(NUMBER_REGEX)) {
                 out.add(token);
                 prevToken = token;
-            } else if (token.equals("(")) {
+
+            } else if (token.equals(LEFT_PAREN)) {
                 ops.push(token);
                 prevToken = token;
-            } else if (token.equals(")")) {
-                while (!ops.isEmpty() && !ops.peek().equals("(")) {
+
+            } else if (token.equals(RIGHT_PAREN)) {
+                while (!ops.isEmpty() && !ops.peek().equals(LEFT_PAREN)) {
                     out.add(ops.pop());
                 }
                 if (!ops.isEmpty()) ops.pop();
                 prevToken = token;
-            } else if ("+-*/".contains(token)) {
-                if (token.equals("-") && (prevToken.isEmpty() || "(".equals(prevToken) || "+-*/".contains(prevToken))) {
-                    out.add("0");
+
+            } else if (OPERATORS.contains(token)) {
+                if (token.equals(MINUS) && (prevToken.isEmpty() || LEFT_PAREN.equals(prevToken) || OPERATORS.contains(prevToken))) {
+                    out.add(ZERO);
                 }
 
                 while (!ops.isEmpty() && precedence(ops.peek()) >= precedence(token)) {
@@ -54,25 +83,31 @@ public class ArithmeticEvaluator {
         return out;
     }
 
+    /**
+     * Defines operator precedence.
+     */
     private static int precedence(String op) {
         return switch (op) {
-            case "*", "/" -> 2;
-            case "+", "-" -> 1;
-            default -> 0;
+            case MULTIPLY, DIVIDE -> 2;
+            case PLUS, MINUS     -> 1;
+            default              -> 0;
         };
     }
 
+    /**
+     * Evaluates an RPN expression.
+     */
     private static double evalRPN(List<String> rpn) {
-        Stack<Double> stack = new Stack<>();
+        Deque<Double> stack = new ArrayDeque<>();
         for (String token : rpn) {
             switch (token) {
-                case "+" -> stack.push(stack.pop() + stack.pop());
-                case "-" -> {
+                case PLUS -> stack.push(stack.pop() + stack.pop());
+                case MINUS -> {
                     double b = stack.pop(), a = stack.pop();
                     stack.push(a - b);
                 }
-                case "*" -> stack.push(stack.pop() * stack.pop());
-                case "/" -> {
+                case MULTIPLY -> stack.push(stack.pop() * stack.pop());
+                case DIVIDE -> {
                     double b = stack.pop(), a = stack.pop();
                     stack.push(a / b);
                 }
